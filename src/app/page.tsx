@@ -1,4 +1,7 @@
+import Link from "next/link";
 import { FlexNavbar } from "@/components/ui/flex-navbar";
+import { MovingLinesBackground } from "@/components/ui/moving-lines-background";
+import { CategoryShowcase } from "@/components/shop/category-showcase";
 
 export default function Home() {
   return (
@@ -18,15 +21,37 @@ export default function Home() {
         />
       </div>
 
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-6 pt-28 text-center">
-        <h1 className="font-display text-4xl font-semibold">
-          Everything you love. One place.
-        </h1>
-        <p className="max-w-sm text-muted-foreground">Store coming soon.</p>
-        <span className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground">
-          Theme check
-        </span>
-      </main>
+      <MovingLinesBackground className="min-h-screen" opacity={0.7}>
+        <main className="mx-auto flex max-w-6xl flex-col items-center gap-12 px-4 pb-16 pt-32 text-center sm:px-6">
+          <section className="flex flex-col items-center gap-5">
+            <span className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-primary">
+              Premium marketplace
+            </span>
+            <h1 className="font-display text-4xl font-semibold leading-tight sm:text-6xl">
+              Everything you love.
+              <br />
+              One place.
+            </h1>
+            <p className="max-w-md text-muted-foreground">
+              Fashion, electronics, home and more, carefully curated in one
+              store.
+            </p>
+            <Link
+              href="/products"
+              className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Start shopping
+            </Link>
+          </section>
+
+          <section className="w-full">
+            <h2 className="mb-6 font-display text-2xl font-semibold">
+              Shop by category
+            </h2>
+            <CategoryShowcase />
+          </section>
+        </main>
+      </MovingLinesBackground>
     </>
   );
 }
