@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Theme tokens (colors, radius) for 21st.dev / shadcn components
+   will be added here when we install the first components. */
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
