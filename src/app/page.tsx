@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { FlexNavbar } from "@/components/ui/flex-navbar";
 import { MovingLinesBackground } from "@/components/ui/moving-lines-background";
+import { HeroSection } from "@/components/shop/hero-section";
 import { CategoryShowcase } from "@/components/shop/category-showcase";
 
 export default function Home() {
@@ -22,29 +22,23 @@ export default function Home() {
       </div>
 
       <MovingLinesBackground className="min-h-screen" opacity={0.7}>
-        <main className="mx-auto flex max-w-6xl flex-col items-center gap-12 px-4 pb-16 pt-32 text-center sm:px-6">
-          <section className="flex flex-col items-center gap-5">
-            <span className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-primary">
-              Premium marketplace
-            </span>
-            <h1 className="font-display text-4xl font-semibold leading-tight sm:text-6xl">
-              Everything you love.
-              <br />
-              One place.
-            </h1>
-            <p className="max-w-md text-muted-foreground">
-              Fashion, electronics, home and more, carefully curated in one
-              store.
-            </p>
-            <Link
-              href="/products"
-              className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Start shopping
-            </Link>
-          </section>
+        <main className="mx-auto flex max-w-6xl flex-col items-center gap-16 px-4 pb-16 pt-32 sm:px-6">
+          <HeroSection
+            badgeText="New season collection"
+            title="Everything you love."
+            highlight="One place."
+            subtitle="Fashion, electronics, home and more, carefully curated in one premium store."
+            primaryCTA={{ label: "Start shopping", href: "/products" }}
+            secondaryCTA={{ label: "Browse categories", href: "/category" }}
+            features={[
+              { label: "Free shipping", icon: "truck" },
+              { label: "Secure payments", icon: "shield" },
+              { label: "Easy returns", icon: "return" },
+              { label: "24/7 support", icon: "support" },
+            ]}
+          />
 
-          <section className="w-full">
+          <section className="w-full text-center">
             <h2 className="mb-6 font-display text-2xl font-semibold">
               Shop by category
             </h2>
