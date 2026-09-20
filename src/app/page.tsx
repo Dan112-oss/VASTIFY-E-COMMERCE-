@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { FlexNavbar } from "@/components/ui/flex-navbar";
 import { MovingLinesBackground } from "@/components/ui/moving-lines-background";
 import { HeroSection } from "@/components/shop/hero-section";
 import { CategoryShowcase } from "@/components/shop/category-showcase";
+import { ProductRow } from "@/components/shop/product-grid";
+import { sampleProducts } from "@/lib/sample-products";
 
 export default function Home() {
   return (
@@ -37,6 +40,21 @@ export default function Home() {
               { label: "24/7 support", icon: "support" },
             ]}
           />
+
+          <section className="w-full">
+            <div className="mb-5 flex items-end justify-between">
+              <h2 className="font-display text-2xl font-semibold">
+                Deals of the day
+              </h2>
+              <Link
+                href="/products"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                View all
+              </Link>
+            </div>
+            <ProductRow products={sampleProducts} />
+          </section>
 
           <section className="w-full text-center">
             <h2 className="mb-6 font-display text-2xl font-semibold">
