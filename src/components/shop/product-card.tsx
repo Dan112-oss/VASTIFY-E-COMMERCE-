@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Check, ShoppingBag, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/format";
+import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
 
 export interface ProductCardProps {
@@ -19,6 +20,7 @@ export function ProductCard({
   onAddToCart,
   className,
 }: ProductCardProps) {
+  const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,6 +31,7 @@ export function ProductCard({
   }, []);
 
   function handleAdd() {
+    addItem(product);
     onAddToCart?.(product);
     setAdded(true);
     if (timer.current) clearTimeout(timer.current);
@@ -114,7 +117,11 @@ export function ProductCard({
                 : "bg-secondary text-foreground hover:bg-primary hover:text-primary-foreground",
             )}
           >
-            {added ? <Check className="size-4" /> : <ShoppingBag className="size-4" />}
+            {added ? (
+              <Check className="size-4" />
+            ) : (
+              <ShoppingBag className="size-4" />
+            )}
           </button>
         </div>
       </div>
