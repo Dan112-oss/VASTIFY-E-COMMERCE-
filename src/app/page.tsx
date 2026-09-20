@@ -20,7 +20,10 @@ export default async function Home() {
           highlight="One place."
           subtitle="Fashion, electronics, home and more, carefully curated in one premium store."
           primaryCTA={{ label: "Start shopping", href: "/products" }}
-          secondaryCTA={{ label: "Browse categories", href: "/category" }}
+          secondaryCTA={{
+            label: "Browse categories",
+            href: "/products#categories",
+          }}
           features={[
             { label: "Free shipping", icon: "truck" },
             { label: "Secure payments", icon: "shield" },

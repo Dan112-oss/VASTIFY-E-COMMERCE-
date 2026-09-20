@@ -14,9 +14,9 @@ export function SiteHeader() {
         launchText="New"
         navLinks={[
           { label: "Shop", href: "/products" },
-          { label: "Categories", href: "/category" },
-          { label: "Deals", href: "/deals" },
-          { label: "About", href: "/about" },
+          { label: "Fashion", href: "/products?category=fashion" },
+          { label: "Electronics", href: "/products?category=electronics" },
+          { label: "Home & Living", href: "/products?category=home-living" },
         ]}
         cartCount={count}
         cartHref="/cart"
