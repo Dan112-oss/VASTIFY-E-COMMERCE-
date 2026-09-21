@@ -38,13 +38,14 @@ export default async function AccountPage() {
 
   const name = profile?.full_name || user.email?.split("@")[0] || "there";
 
+  const linkClass =
+    "mt-3 inline-block rounded-full border border-border px-5 py-2 text-sm font-medium transition-colors hover:bg-accent";
+
   return (
     <main className="mx-auto max-w-3xl px-4 pb-16 pt-32 sm:px-6">
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold">
-            Hi, {name}
-          </h1>
+          <h1 className="font-display text-3xl font-semibold">Hi, {name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {profile?.is_admin && (
@@ -92,21 +93,35 @@ export default async function AccountPage() {
           <div>
             <h2 className="font-medium">Sell on Vastify</h2>
             {!seller && (
-              <p className="text-sm text-muted-foreground">
-                Want to sell your products here? The seller application opens
-                in the next update.
-              </p>
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Want to sell your products here? Apply for a seller account.
+                </p>
+                <Link href="/sell" className={linkClass}>
+                  Apply to sell
+                </Link>
+              </>
             )}
             {seller?.status === "pending" && (
-              <p className="text-sm text-muted-foreground">
-                Your application for {seller.store_name} is under review.
-              </p>
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Your application for {seller.store_name} is under review.
+                </p>
+                <Link href="/seller" className={linkClass}>
+                  View status
+                </Link>
+              </>
             )}
             {seller?.status === "approved" && (
-              <p className="text-sm text-muted-foreground">
-                {seller.store_name} is approved. Your seller dashboard is coming
-                in the next update.
-              </p>
+              <>
+                <p className="text-sm text-muted-foreground">
+                  {seller.store_name} is approved. Manage your products and
+                  listings.
+                </p>
+                <Link href="/seller" className={linkClass}>
+                  Open seller dashboard
+                </Link>
+              </>
             )}
             {seller?.status === "suspended" && (
               <p className="text-sm text-muted-foreground">
