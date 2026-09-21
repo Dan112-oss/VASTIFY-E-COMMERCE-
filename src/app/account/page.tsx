@@ -73,6 +73,26 @@ export default async function AccountPage() {
       </div>
 
       <div className="grid gap-4">
+        {profile?.is_admin && (
+          <section className="flex items-start gap-4 rounded-2xl border border-primary/30 bg-card p-5">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Shield className="size-5" />
+            </span>
+            <div>
+              <h2 className="font-medium">Admin panel</h2>
+              <p className="text-sm text-muted-foreground">
+                Approve sellers and products, and process orders for delivery.
+              </p>
+              <Link
+                href="/admin"
+                className="mt-3 inline-block rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Open admin panel
+              </Link>
+            </div>
+          </section>
+        )}
+
         <section className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Package className="size-5" />
@@ -130,21 +150,6 @@ export default async function AccountPage() {
             )}
           </div>
         </section>
-
-        {profile?.is_admin && (
-          <section className="flex items-start gap-4 rounded-2xl border border-primary/30 bg-card p-5">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Shield className="size-5" />
-            </span>
-            <div>
-              <h2 className="font-medium">Admin</h2>
-              <p className="text-sm text-muted-foreground">
-                The admin panel for approving sellers and processing orders is
-                coming soon.
-              </p>
-            </div>
-          </section>
-        )}
       </div>
 
       <p className="mt-8 text-sm text-muted-foreground">
