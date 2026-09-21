@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, Play, ShoppingBag, X } from "lucide-react";
+import { Menu, Play, ShoppingBag, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type NavLinkItem = { label: string; href: string };
@@ -23,6 +23,8 @@ export interface FlexNavbarProps {
   mediaButtonText?: string;
   cartCount?: number;
   cartHref?: string;
+  accountHref?: string;
+  accountActive?: boolean;
   className?: string;
 }
 
@@ -67,6 +69,8 @@ export function FlexNavbar({
   mediaButtonText = "Watch intro",
   cartCount = 0,
   cartHref = "/cart",
+  accountHref,
+  accountActive = false,
   className,
 }: FlexNavbarProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -139,6 +143,21 @@ export function FlexNavbar({
                   <Play className="size-4 text-primary" />
                   {mediaButtonText}
                 </button>
+              )}
+
+              {accountHref && (
+                <Link
+                  href={accountHref}
+                  aria-label={accountActive ? "My account" : "Log in"}
+                  className={cn(
+                    "inline-flex size-10 items-center justify-center rounded-full border transition-colors hover:bg-accent",
+                    accountActive
+                      ? "border-primary/60 text-primary"
+                      : "border-border",
+                  )}
+                >
+                  <User className="size-5" />
+                </Link>
               )}
 
               <Link
