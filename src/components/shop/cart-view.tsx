@@ -160,13 +160,12 @@ export function CartView() {
           </span>
         </div>
 
-        <button
-          type="button"
-          disabled
-          className="mt-5 w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground opacity-60"
+        <Link
+          href="/checkout"
+          className="mt-5 block w-full rounded-full bg-primary px-6 py-3 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
-          Checkout (coming next)
-        </button>
+          Checkout
+        </Link>
       </aside>
     </div>
   );
