@@ -83,10 +83,7 @@ export default async function AccountPage() {
               <p className="text-sm text-muted-foreground">
                 Approve sellers and products, and process orders for delivery.
               </p>
-              <Link
-                href="/admin"
-                className="mt-3 inline-block rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
+              <Link href="/admin" className={linkClass}>
                 Open admin panel
               </Link>
             </div>
@@ -100,9 +97,11 @@ export default async function AccountPage() {
           <div>
             <h2 className="font-medium">My orders</h2>
             <p className="text-sm text-muted-foreground">
-              Your order history and delivery tracking will appear here once
-              checkout is live.
+              View your order history and delivery tracking.
             </p>
+            <Link href="/account/orders" className={linkClass}>
+              View my orders
+            </Link>
           </div>
         </section>
 

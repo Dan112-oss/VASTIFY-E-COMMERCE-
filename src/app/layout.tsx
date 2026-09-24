@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { CartHydrator } from "@/components/shop/cart-hydrator";
 import { SiteHeader } from "@/components/shop/site-header";
+import { SiteFooter } from "@/components/layout/site-footer";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -24,6 +25,7 @@ export default function RootLayout({
         <CartHydrator />
         <SiteHeader />
         {children}
+        <SiteFooter />
       </body>
     </html>
   );
