@@ -8,9 +8,7 @@ export type MyOrderRow = {
   created_at: string;
   tracking_number: string | null;
   carrier: string | null;
-  order_items: {
-    quantity: number;
-  }[] | null;
+  order_items: { quantity: number } [] | null;
 };
 
 export async function getMyOrders(supabase: Supabase, userId: string) {
@@ -20,25 +18,26 @@ export async function getMyOrders(supabase: Supabase, userId: string) {
       "id, status, total_cents, currency, created_at, tracking_number, carrier, order_items(quantity)",
     )
     .eq("user_id", userId)
-    .neq("status", "pending")
+    .neq("status", "pending") // hide abandoned/never-paid checkouts
     .order("created_at", { ascending: false });
-
+  
   if (error) {
     console.error("getMyOrders:", error.message);
     return [];
   }
-
+  
   return (data ?? []) as unknown as MyOrderRow[];
 }
 
-export type MyOrderDetail = Omit<MyOrderRow, "order_items"> & {
-  shipping_address: Record<string, string> | null;
+export type MyOrderDetail = MyOrderRow & {
+  shipping_address: Record < string,
+  string > | null;
   order_items: {
     id: string;
     name: string;
     unit_price_cents: number;
     quantity: number;
-  }[];
+  } [];
 };
 
 export async function getMyOrderById(
@@ -54,8 +53,7 @@ export async function getMyOrderById(
     .eq("id", orderId)
     .eq("user_id", userId)
     .maybeSingle();
-
+  
   if (error || !data) return null;
-
   return data as unknown as MyOrderDetail;
 }
