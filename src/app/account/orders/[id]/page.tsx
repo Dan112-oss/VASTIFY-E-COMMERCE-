@@ -83,7 +83,7 @@ export default async function MyOrderDetailPage({
         <ul className="divide-y divide-border">
           {order.order_items.map((item) => (
             <li
-              key={item.id}
+              key={`${item.name}-${item.quantity}`}
               className="flex items-center justify-between px-5 py-3 text-sm"
             >
               <span className="text-muted-foreground">
