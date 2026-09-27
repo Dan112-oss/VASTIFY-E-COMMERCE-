@@ -29,7 +29,7 @@ export async function getMyOrders(supabase: Supabase, userId: string) {
   return (data ?? []) as unknown as MyOrderRow[];
 }
 
-export type MyOrderDetail = MyOrderRow & {
+export type MyOrderDetail = Omit < MyOrderRow, "order_items" > & {
   shipping_address: Record < string,
   string > | null;
   order_items: {
