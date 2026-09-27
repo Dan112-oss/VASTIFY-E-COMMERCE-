@@ -3,9 +3,11 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProductGrid } from "@/components/shop/product-grid";
+import { Pagination } from "@/components/shop/pagination";
 import {
   getCategories,
-  getProducts,
+  getProductsPage,
+  PRODUCTS_PER_PAGE,
   type ProductSort,
 } from "@/lib/queries/products";
 
@@ -14,17 +16,27 @@ export const metadata: Metadata = {
   description: "Browse all products on Vastify.",
 };
 
+// Cache each distinct combination of filters + page for 60 seconds,
+// so repeat visits skip the database instead of re-querying every time.
+export const revalidate = 60;
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function buildHref(params: { category?: string; sort?: string; q?: string }) {
+function buildHref(params: {
+  category?: string;
+  sort?: string;
+  q?: string;
+  page?: number;
+}) {
   const sp = new URLSearchParams();
   if (params.category) sp.set("category", params.category);
   if (params.sort && params.sort !== "newest") sp.set("sort", params.sort);
   if (params.q) sp.set("q", params.q);
+  if (params.page && params.page > 1) sp.set("page", String(params.page));
   const qs = sp.toString();
   return qs ? `/products?${qs}` : "/products";
 }
@@ -72,6 +84,7 @@ export default async function ProductsPage({
     sortParam === "price_asc" || sortParam === "price_desc"
       ? sortParam
       : "newest";
+  const page = Math.max(1, Number(first(sp.page)) || 1);
 
   const categories = await getCategories();
   const topLevel = categories.filter((c) => !c.parent_id);
@@ -87,8 +100,14 @@ export default async function ProductsPage({
       ]
     : undefined;
 
-  const products = await getProducts({ categoryIds, sort, search: q });
+  const { products, total } = await getProductsPage({
+    categoryIds,
+    sort,
+    search: q,
+    page,
+  });
 
+  const totalPages = Math.max(1, Math.ceil(total / PRODUCTS_PER_PAGE));
   const current = { category: activeCategory?.slug, sort, q };
 
   return (
@@ -98,7 +117,7 @@ export default async function ProductsPage({
           {activeCategory ? activeCategory.name : "Shop"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {products.length} {products.length === 1 ? "product" : "products"}
+          {total} {total === 1 ? "product" : "products"}
           {q ? ` matching "${q}"` : ""}
         </p>
       </div>
@@ -132,10 +151,7 @@ export default async function ProductsPage({
         id="categories"
         className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <Chip
-          href={buildHref({ sort, q })}
-          active={!activeCategory}
-        >
+        <Chip href={buildHref({ sort, q })} active={!activeCategory}>
           All
         </Chip>
         {topLevel.map((cat) => (
@@ -166,7 +182,14 @@ export default async function ProductsPage({
       </div>
 
       {products.length > 0 ? (
-        <ProductGrid products={products} />
+        <>
+          <ProductGrid products={products} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            buildHref={(p) => buildHref({ ...current, page: p })}
+          />
+        </>
       ) : (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-6 py-16 text-center">
           <h2 className="font-display text-2xl font-semibold">

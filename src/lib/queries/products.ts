@@ -39,6 +39,8 @@ const LIST_SELECT =
 const DETAIL_SELECT =
   "id, name, slug, description, price_cents, currency, category_id, categories(name, slug), product_images(url, alt, sort_order), sellers(store_name)";
 
+export const PRODUCTS_PER_PAGE = 24;
+
 function one<T>(value: T | T[] | null | undefined): T | null {
   if (Array.isArray(value)) return value[0] ?? null;
   return value ?? null;
@@ -67,22 +69,37 @@ function toProduct(row: ProductRow): Product {
   };
 }
 
-/** Approved, active products with optional category / sort / search */
-export async function getProducts(
+/**
+ * Approved, active products with optional category / sort / search / paging.
+ * Returns both the page of products and the total count, so the caller
+ * can render "Page X of Y" without a second round trip.
+ */
+export async function getProductsPage(
   opts: {
     categoryIds?: string[];
     sort?: ProductSort;
     search?: string;
-    limit?: number;
+    page?: number;
+    perPage?: number;
   } = {},
-): Promise<Product[]> {
-  const { categoryIds, sort = "newest", search, limit = 48 } = opts;
+): Promise<{ products: Product[]; total: number }> {
+  const {
+    categoryIds,
+    sort = "newest",
+    search,
+    page = 1,
+    perPage = PRODUCTS_PER_PAGE,
+  } = opts;
+
+  const safePage = Math.max(1, Math.floor(page));
+  const from = (safePage - 1) * perPage;
+  const to = from + perPage - 1;
 
   try {
     const supabase = createPublicClient();
     let query = supabase
       .from("products")
-      .select(LIST_SELECT)
+      .select(LIST_SELECT, { count: "exact" })
       .eq("status", "approved")
       .eq("active", true);
 
@@ -103,18 +120,39 @@ export async function getProducts(
       query = query.order("created_at", { ascending: false });
     }
 
-    const { data, error } = await query.limit(limit);
+    const { data, count, error } = await query.range(from, to);
 
     if (error) {
-      console.error("getProducts:", error.message);
-      return [];
+      console.error("getProductsPage:", error.message);
+      return { products: [], total: 0 };
     }
 
-    return ((data ?? []) as unknown as ProductRow[]).map(toProduct);
+    return {
+      products: ((data ?? []) as unknown as ProductRow[]).map(toProduct),
+      total: count ?? 0,
+    };
   } catch (err) {
-    console.error("getProducts failed:", err);
-    return [];
+    console.error("getProductsPage failed:", err);
+    return { products: [], total: 0 };
   }
+}
+
+/** Simple unpaged fetch, used by the home page and "related products" */
+export async function getProducts(
+  opts: {
+    categoryIds?: string[];
+    sort?: ProductSort;
+    search?: string;
+    limit?: number;
+  } = {},
+): Promise<Product[]> {
+  const { limit = PRODUCTS_PER_PAGE, ...rest } = opts;
+  const { products } = await getProductsPage({
+    ...rest,
+    page: 1,
+    perPage: limit,
+  });
+  return products;
 }
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
