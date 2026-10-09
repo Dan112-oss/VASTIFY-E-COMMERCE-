@@ -35,6 +35,7 @@ export async function getProductReviews(productId: string) {
     .order("created_at", { ascending: false });
 
   if (error || !data) {
+    if (error) console.error("getProductReviews:", error.message);
     return { reviews: [] as Review[], average: 0, count: 0 };
   }
 
