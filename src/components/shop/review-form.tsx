@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { submitReview, type ReviewState } from "@/app/products/[slug]/actions";
@@ -14,6 +15,7 @@ export function ReviewForm({
   slug: string;
   existing: { rating: number; comment: string | null } | null;
 }) {
+  const router = useRouter();
   const [state, formAction, pending] = React.useActionState<
     ReviewState,
     FormData
@@ -21,6 +23,14 @@ export function ReviewForm({
 
   const [rating, setRating] = React.useState(existing?.rating ?? 0);
   const [hover, setHover] = React.useState(0);
+
+  // Force the page's server-rendered review list to refetch once the
+  // review has actually saved, instead of waiting on automatic refresh.
+  React.useEffect(() => {
+    if (state?.ok) {
+      router.refresh();
+    }
+  }, [state, router]);
 
   return (
     <form
