@@ -6,7 +6,12 @@ import { formatPrice } from "@/lib/format";
 import { AddToCartPanel } from "@/components/shop/add-to-cart-panel";
 import { ProductGallery } from "@/components/shop/product-gallery";
 import { ProductGrid } from "@/components/shop/product-grid";
+import { ReviewForm } from "@/components/shop/review-form";
+import { ReviewList } from "@/components/shop/review-list";
+import { StarRating } from "@/components/shop/star-rating";
 import { getProductBySlug, getProducts } from "@/lib/queries/products";
+import { getProductReviews, getReviewEligibility } from "@/lib/queries/reviews";
+import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/types/product";
 
 // Refresh cached product pages at most once a minute
@@ -32,11 +37,26 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const related = product.category_id
-    ? (await getProducts({ categoryIds: [product.category_id], limit: 5 }))
-        .filter((p) => p.id !== product.id)
-        .slice(0, 4)
-    : [];
+  const [related, { reviews, average, count }, supabaseAndUser] =
+    await Promise.all([
+      product.category_id
+        ? getProducts({ categoryIds: [product.category_id], limit: 5 }).then(
+            (list) => list.filter((p) => p.id !== product.id).slice(0, 4),
+          )
+        : Promise.resolve([]),
+      getProductReviews(product.id),
+      createClient().then(async (supabase) => {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        return { supabase, user };
+      }),
+    ]);
+
+  const { supabase, user } = supabaseAndUser;
+  const eligibility = user
+    ? await getReviewEligibility(supabase, user.id, product.id)
+    : null;
 
   // Slim object passed to the client-side cart button
   const cartProduct: Product = {
@@ -87,12 +107,19 @@ export default async function ProductPage({ params }: Props) {
             <h1 className="font-display text-3xl font-semibold leading-tight sm:text-4xl">
               {product.name}
             </h1>
-            {product.seller_name && (
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Store className="size-4" />
-                Sold by {product.seller_name}
-              </p>
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {count > 0 && (
+                <a href="#reviews" className="hover:opacity-80">
+                  <StarRating value={average} showValue count={count} />
+                </a>
+              )}
+              {product.seller_name && (
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Store className="size-4" />
+                  Sold by {product.seller_name}
+                </p>
+              )}
+            </div>
           </div>
 
           <p className="text-3xl font-semibold">
@@ -132,6 +159,36 @@ export default async function ProductPage({ params }: Props) {
           <ProductGrid products={related} />
         </section>
       )}
+
+      <section id="reviews" className="mt-16 scroll-mt-24 space-y-6">
+        <ReviewList reviews={reviews} average={average} count={count} />
+
+        {user && eligibility?.canReview && (
+          <ReviewForm
+            productId={product.id}
+            slug={product.slug}
+            existing={eligibility.existing}
+          />
+        )}
+
+        {user && !eligibility?.canReview && (
+          <p className="text-sm text-muted-foreground">
+            Only buyers who have ordered this product can leave a review.
+          </p>
+        )}
+
+        {!user && (
+          <p className="text-sm text-muted-foreground">
+            <Link
+              href={`/login?next=/products/${product.slug}#reviews`}
+              className="text-primary hover:underline"
+            >
+              Log in
+            </Link>{" "}
+            to write a review if you&apos;ve bought this product.
+          </p>
+        )}
+      </section>
     </main>
   );
 }
