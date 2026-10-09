@@ -56,23 +56,25 @@ export async function getProductReviews(productId: string) {
   return { reviews, average, count };
 }
 
+const EXCLUDED_STATUSES = ["pending", "cancelled", "refunded"];
+
 /**
  * Checks (using the logged-in buyer's own session) whether they have an
  * order for this product and whether they've already reviewed it.
+ * Uses two plain queries rather than one filtered join, which is more
+ * reliable against Supabase's embedded-resource filter syntax.
  */
 export async function getReviewEligibility(
   supabase: Supabase,
   userId: string,
   productId: string,
 ) {
-  const [purchaseRes, existingRes] = await Promise.all([
+  const [ordersRes, existingRes] = await Promise.all([
     supabase
-      .from("order_items")
-      .select("id, orders!inner(user_id, status)")
-      .eq("product_id", productId)
-      .eq("orders.user_id", userId)
-      .not("orders.status", "in", "(pending,cancelled,refunded)")
-      .limit(1),
+      .from("orders")
+      .select("id")
+      .eq("user_id", userId)
+      .not("status", "in", `(${EXCLUDED_STATUSES.join(",")})`),
     supabase
       .from("reviews")
       .select("id, rating, comment")
@@ -81,7 +83,22 @@ export async function getReviewEligibility(
       .maybeSingle(),
   ]);
 
-  const hasPurchased = (purchaseRes.data?.length ?? 0) > 0;
+  const orderIds = (ordersRes.data ?? []).map(
+    (o) => (o as unknown as { id: string }).id,
+  );
+
+  let hasPurchased = false;
+  if (orderIds.length > 0) {
+    const { data: itemRows } = await supabase
+      .from("order_items")
+      .select("id")
+      .eq("product_id", productId)
+      .in("order_id", orderIds)
+      .limit(1);
+
+    hasPurchased = (itemRows?.length ?? 0) > 0;
+  }
+
   const existing = existingRes.data as unknown as
     | { id: string; rating: number; comment: string | null }
     | null;
