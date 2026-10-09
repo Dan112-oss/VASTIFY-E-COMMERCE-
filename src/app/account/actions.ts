@@ -53,6 +53,9 @@ export async function updateProfile(
 
   revalidatePath("/account");
   revalidatePath("/account/profile");
+  // Product pages show the reviewer's name and are cached for 60s;
+  // refresh all of them so a name change shows up immediately.
+  revalidatePath("/products", "layout");
   return { error: undefined };
 }
 
